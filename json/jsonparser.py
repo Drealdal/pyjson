@@ -212,39 +212,47 @@ class JsonParser(object):
     
     def _val_to_str(self,list,val):
         if isinstance(val,type('')):
-            return val
+            list.append("\"");
+            list.append(val)
+            list.append("\"")
         elif isinstance(val, type({})):
-            return self._object_to_str(list, val)
+            self._object_to_str(list, val)
         elif isinstance(val, type([])):
-            return self._array_to_str(list, val)
-        elif val == True:
+            self._array_to_str(list, val)
+        elif val is True:
             list.append('true')
-        elif val == False:
+        elif val is False:
             list.append('false')
-        elif val == None:
+        elif val is None:
             list.append('null')
         else:
-            ss = str(val)
+            list.append(str(val))
         
-    def _kv_to_str(self,key,val):
-        return '\"' + key +'\":'+self._val_to_str(val)
+        
+    def _kv_to_str(self,list,key,val):
+        list.append('\"')
+        list.append(key)
+        list.append('\":')
+        self._val_to_str(list,val)
         
     
     def _object_to_str(self,list,object):
         list.append("{")
         keys = object.keys()
         if len(keys) > 0:
-            list.append(self._kv_to_str(keys[0], object[keys[0]]))
+            self._kv_to_str(list,keys[0], object[keys[0]])
             for k in keys[1:]:
-                list.append(','+self._kv_to_str(k, object[k]))
+                list.append(',')
+                self._kv_to_str(list,k, object[k])
         list.append("}")
     
     def _array_to_str(self,list,array):
         list.append('[')
         if len(array) > 0:
-            list.append(array[0])
+            self._val_to_str(list,array[0])
             for k in array[1:]:
-                list.append(','+self._val_to_str(k))
+                list.append(',')
+                self._val_to_str(list,k)
         list.append(']')
         
     #strip the initial string
@@ -279,11 +287,43 @@ class JsonParser(object):
         list = []
         if  isinstance(self._dict,type([])):
             self._array_to_str(list, self._dict)
-        elif isinstance(self._dict,type('{}')):
+        elif isinstance(self._dict,type({})):
             self._object_to_str(list, self._dict)
+        return list
     def print_dict(self):
        print self._dict
-        
+    def _val_cpy(self,val):
+        if  isinstance(val,type({})):
+            return self._dict_cpy(val)
+        elif isinstance(self._dict,type([])):
+            return self._array_cpy(val)
+        else:
+            return val
+    
+    def dumpDict(self):
+        if self._dict is None:
+            return {}
+        elif isinstance(self._dict, type({})):
+            return self._dict_cpy(self._dict)
+        elif isinstance(self._dict, type([])):
+            return self._array_cpy(self._dict)
+        else:
+            return self._val_cpy(self._dict)
+    def _dict_cpy(self,dict):
+        if dict is None:
+            return None
+        nd={}
+        for k in dict.keys():
+            nd[k] = self._val_cpy(dict[k])
+        return nd
+    def _array_cpy(self,array):
+        if array is None:
+            return None
+        na = []
+        for k in array:
+            na.append(self._val_cpy(k))
+        return na
+    
 class JsonError(ValueError):
     
     def __init__(self,info):
