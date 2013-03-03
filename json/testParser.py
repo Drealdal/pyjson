@@ -3,7 +3,7 @@ Created on Mar 1, 2013
 
 @author: zhumeiqi
 '''
-from jsonparser import JsonParser,JsonError
+from JsonParser import JsonParser,JsonError
 
         
 def test_unit(str,Success,msg):
@@ -27,7 +27,9 @@ def test_unit(str,Success,msg):
         exit()
     print 'Test ' + msg + ' Success'
     #return jpaser._dump_list()
-    return jpaser.dumpDict()    
+    #jpaser.print_dict()
+    return jpaser  
+    #return jpaser._dump_list()
     
 if __name__ == '__main__':
     #wrong type
@@ -50,10 +52,11 @@ if __name__ == '__main__':
     #multi array
     testdata=r'''[1,2,3,4,[1,2,3,4]]'''
     test_unit(testdata,True,'multi elment array')
-   
+    
+   # testdata=r'''{"special":"`1~!@#$%^&*()_+-={':[,]}|;.</>?"}'''
     testdata = r'''
-[
-    "JSON Test Pattern pass1",
+{"root":[
+    "JSON Test Pattern",
     {"object with 1 member":["array with 1 element"]},
     {},
     [],
@@ -66,7 +69,7 @@ if __name__ == '__main__':
         "real": -9876.543210,
         "e": 0.123456789e-12,
         "E": 1.234567890E+34,
-        "":  -23456789012E666,
+        "":  -1,
         "zero": 0,
         "one": 1,
         "space": " ",
@@ -95,8 +98,7 @@ if __name__ == '__main__':
 4 , 5        ,          6           ,7        ],
         "compact": [1,2,3,4,5,6,7],
         "jsontext": "{\"object with 1 member\":[\"array with 1 element\"]}",
-        "\/\\\"\uCAFE\uBABE\uAB98\uFCDE\ubcda\uef4A\b\f\n\r\t`1~!@#$%^&*()_+-=[]{}|;:',./<>?"
-: "A key can be any string"
+        
     },
     0.5 ,98.6
 ,
@@ -106,12 +108,12 @@ if __name__ == '__main__':
 1066
 
 
-,"rosebud"]
+,"rosebud"]}
 '''
-
-    l = test_unit(testdata,True,'All in one')
     
-    print ''.join(l)
-    dict = l
-    print dict
+    paser = JsonParser()
+    paser.load(testdata)
+    d = paser.dumpDict()
+    print d
+    print d[u'/\\"\uCAFE\uBABE\uAB98\uFCDE\ubcda\uef4a\x08\x0c\n\r\t`1~!@#$%^&*()_+-=[]{}|;:\',./<>?']
     pass
