@@ -20,11 +20,11 @@ class JsonParser:
         self._str = self._format_(_str)
         self._off = 0
         return self._parse()
-    def loadJson(self,file):
-        if file is None:
+    def loadJson(self,_file):
+        if _file is None:
             raise JsonError('File Path is Null')
         try:
-            fd = open(file,'r')
+            fd = open(_file,'r')
         except:
             raise JsonError('Open File Error')
         try:
@@ -33,18 +33,18 @@ class JsonParser:
             raise JsonError('Read Data Error')
         self.load(s)
         
-    def dumpJson(self,f):
-        if f is None:
+    def dumpJson(self,_file):
+        if _file is None:
             raise JsonError('File Path is Null')
         try:
-            fd = open(f, "w")
+            fd = open(_file, "w")
         except:
             raise JsonError('Open File Error')
         s = self.dump()
         try:
             fd.write(s)
             fd.close()
-        except IOError,e:
+        except IOError:
             raise JsonError('Write File Error')
           
     def dump(self):
@@ -90,7 +90,7 @@ class JsonParser:
 #        print 'object'
         self._strip()
         self._unexpected_end()
-        object = {}
+        _object = {}
         c = self._str[self._off]
         self._off+=1
         if c != '}':
@@ -106,7 +106,7 @@ class JsonParser:
                     if c == ':':
                         self._strip()
                         self._unexpected_end()
-                        object[key]=self._parse_val()
+                        _object[key]=self._parse_val()
                     #trip the space between pairs
                 # "a":123  \t...     
                     self._strip()
@@ -126,7 +126,7 @@ class JsonParser:
                         self._off+=1
                 else:
                     self._unexpected_char()            
-        return object
+        return _object
                 
     def _parse_array(self):
             a=[]
@@ -155,7 +155,7 @@ class JsonParser:
 #def _parse_key(self):
         
     def _parse_val(self):
-        val = None
+        #val = None
         self._strip()
         self._unexpected_end()
         c = self._str[self._off]
@@ -187,14 +187,14 @@ class JsonParser:
         strip space, \t \n \r
         '''
         while self._off < len(self._str):
-            c = self._str[self._off]
+            #c = self._str[self._off]
             if self._str[self._off] in _STRIP_SET:
                 self._off+=1
             else:
                 break
     #Reading string util " , or error
     def _strip_str(self):
-        s=""
+# s=""
         begin=self._off
         while self._off < len(self._str):
             c = self._str[self._off];
@@ -236,31 +236,31 @@ class JsonParser:
                 num = int(num_str)
             if str(num) == '-inf':
                 raise JsonError("Float Overflow")
-        except ValueError,e:
+        except ValueError:
             self._Wrong_Number_Format(num_str)
         return num
     
-    def _val_to_str(self,list,val):
+    def _val_to_str(self,_list,val):
         if isinstance(val,type('')):
-            list.append("\"")
-            list.append(val)
-            list.append("\"")
+            _list.append("\"")
+            _list.append(val)
+            _list.append("\"")
         elif isinstance(val,type(u'')):
-            list.append("\"")
-            list.append(self._format_unicode(val))
-            list.append("\"")
+            _list.append("\"")
+            _list.append(self._format_unicode(val))
+            _list.append("\"")
         elif isinstance(val, type({})):
-            self._object_to_str(list, val)
+            self._object_to_str(_list, val)
         elif isinstance(val, type([])):
-            self._array_to_str(list, val)
+            self._array_to_str(_list, val)
         elif val is True:
-            list.append('true')
+            _list.append('true')
         elif val is False:
-            list.append('false')
+            _list.append('false')
         elif val is None:
-            list.append('null')
+            _list.append('null')
         else:
-            list.append(str(val))
+            _list.append(str(val))
     
     def _value_char_(self,c):
         if c <= 9:
@@ -308,39 +308,39 @@ class JsonParser:
             m/=16
         return ''.join(l)
             
-    def _kv_to_str(self,list,key,val):
-        self._val_to_str(list, key)
-        list.append(':')
-        self._val_to_str(list,val)
+    def _kv_to_str(self,_list,key,val):
+        self._val_to_str(_list, key)
+        _list.append(':')
+        self._val_to_str(_list,val)
         
     
-    def _object_to_str(self,list,object):
-        list.append("{")
-        keys = object.keys()
+    def _object_to_str(self,_list,_object):
+        _list.append("{")
+        keys = _object.keys()
         if len(keys) > 0:
-            self._kv_to_str(list,keys[0], object[keys[0]])
+            self._kv_to_str(_list,keys[0], _object[keys[0]])
             for k in keys[1:]:
-                list.append(',')
-                self._kv_to_str(list,k, object[k])
-        list.append("}")
+                _list.append(',')
+                self._kv_to_str(_list,k, _object[k])
+        _list.append("}")
     
-    def _array_to_str(self,list,array):
-        list.append('[')
+    def _array_to_str(self,_list,array):
+        _list.append('[')
         if len(array) > 0:
-            self._val_to_str(list,array[0])
+            self._val_to_str(_list,array[0])
             for k in array[1:]:
-                list.append(',')
-                self._val_to_str(list,k)
-        list.append(']')
+                _list.append(',')
+                self._val_to_str(_list,k)
+        _list.append(']')
         
     #strip the initial string
-    def _format_(self,str=None):
-        if str == None:
+    def _format_(self,_str=None):
+        if _str == None:
             return None
-        return str.strip(_STRIP_SET);
+        return _str.strip(_STRIP_SET);
     
-    def _print(self,ss):
-        print 'Length %d Content:%s' % (len(ss),ss)
+    def _print(self,_str):
+        print 'Length %d Content:%s' % (len(_str),_str)
         
     def _unexpected_end(self):
         if self._off >= len(self._str):
@@ -355,21 +355,21 @@ class JsonParser:
             self._print_rest()
             raise JsonError("Unexpected Char After \\")
     
-    def _Wrong_Number_Format(self,str):
+    def _Wrong_Number_Format(self,_str):
         self._print_rest()
         raise JsonError("Wrong Number Format")
     
     def _print_rest(self):
         print self._str[self._off:self._off+100]
     def _dump_list(self):
-        list = []
+        _list = []
         if  isinstance(self._dict,type([])):
-            self._array_to_str(list, self._dict)
+            self._array_to_str(_list, self._dict)
         elif isinstance(self._dict,type({})):
-            self._object_to_str(list, self._dict)
-        return list
+            self._object_to_str(_list, self._dict)
+        return _list
     def print_dict(self):
-       print self._dict
+        print self._dict
 ### deep copy of dictionary
     def dumpDict(self):
         if self._dict is None:
@@ -391,12 +391,12 @@ class JsonParser:
         else:
             return val
     
-    def _dict_cpy(self,dict):
-        if dict is None:
+    def _dict_cpy(self,_dict):
+        if _dict is None:
             return None
         nd={}
-        for k in dict.keys():
-            nd[self._val_cpy(k)] = self._val_cpy(dict[k])
+        for k in _dict.keys():
+            nd[self._val_cpy(k)] = self._val_cpy(_dict[k])
         return nd
     def _array_cpy(self,array):
         if array is None:
@@ -406,12 +406,12 @@ class JsonParser:
             na.append(self._val_cpy(k))
         return na
 #load data from diction
-    def loadDict(self,dict):
+    def loadDict(self,_dict):
         #if isinstance(self._dict, type([])):
         self._dict={}
-        for k in dict.keys():
+        for k in _dict.keys():
             if isinstance(k, type(u'')) or isinstance(k, type('')):
-                self._dict[self._val_cpy(k)] = self._val_cpy(dict[k])       
+                self._dict[self._val_cpy(k)] = self._val_cpy(_dict[k])       
 #[]
     def __getitem__(self, i):
         return self._dict[self._val_cpy(i)]
@@ -422,11 +422,12 @@ class JsonParser:
         else:
             raise JsonError("Wrong Type For Key")
 #define
-    def update(self,dict2):
-        self.loadDict(dict2)
+    def update(self,_dict):
+        self.loadDict(_dict)
+#translate _str to unicode encoding string
     def _to_unicode(self,_str):
         l=[]
-        ignore = False
+#        ignore = False
         index=0
         #_QUOTES_= '"\\/bfnrtu'
         qs = {'\\b':'\b',
@@ -477,4 +478,3 @@ class JsonError(ValueError):
         self._info =  info
     def print_error(self):
         print self._info
-   

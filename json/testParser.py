@@ -110,12 +110,10 @@ if __name__ == '__main__':
 1066
 
 
-,"rosebud"]
-
-    
+,"rosebud"]}
+'''
     paser = JsonParser()
     paser.load(testdata)
     d = paser.dumpDict()
     print d
-    print d[u'/\\"\uCAFE\uBABE\uAB98\uFCDE\ubcda\uef4a\x08\x0c\n\r\t`1~!@#$%^&*()_+-=[]{}|;:\',./<>?']
     pass
